@@ -30,12 +30,15 @@ function Lightbox({
   onClose: () => void;
   onDelete: () => void;
 }) {
-  function download() {
+  async function download() {
+    const res = await fetch(photo.url);
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = photo.url;
+    a.href = objectUrl;
     a.download = `foto-${photo.id.slice(0, 8)}.jpg`;
-    a.target = "_blank";
     a.click();
+    URL.revokeObjectURL(objectUrl);
   }
 
   return (
@@ -219,11 +222,14 @@ export function GalleryScreen({ refreshKey, toast }: Props) {
 
   async function downloadAll() {
     for (const p of photos) {
+      const res = await fetch(p.url);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = p.url;
+      a.href = objectUrl;
       a.download = `foto-${p.id.slice(0, 8)}.jpg`;
-      a.target = "_blank";
       a.click();
+      URL.revokeObjectURL(objectUrl);
       await new Promise(r => setTimeout(r, 300));
     }
   }

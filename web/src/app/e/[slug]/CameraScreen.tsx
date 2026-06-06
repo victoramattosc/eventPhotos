@@ -10,14 +10,16 @@ interface Props {
 
 export function CameraScreen({ onSaved, toast }: Props) {
   const webcamRef = useRef<Webcam>(null);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
+  const [facingMode, setFacingMode] = useState<"user" | "environment">(
+    "environment",
+  );
   const [flashing, setFlashing] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [camError, setCamError] = useState(false);
 
   function flipCamera() {
-    setFacingMode(m => m === "environment" ? "user" : "environment");
+    setFacingMode((m) => (m === "environment" ? "user" : "environment"));
   }
 
   const capture = useCallback(async () => {
@@ -93,6 +95,7 @@ export function CameraScreen({ onSaved, toast }: Props) {
                 audio={false}
                 screenshotFormat="image/jpeg"
                 screenshotQuality={0.9}
+                mirrored={true}
                 videoConstraints={{ facingMode, aspectRatio: 1 }}
                 onUserMediaError={() => setCamError(true)}
                 className="w-full h-full object-cover"
@@ -105,12 +108,22 @@ export function CameraScreen({ onSaved, toast }: Props) {
               <div className="absolute top-1/2 left-2 right-2 h-px bg-white/50 -translate-y-px" />
             </div>
             {/* corners */}
-            {[["top-1.5 left-1.5","border-b-0 border-r-0"],["top-1.5 right-1.5","border-b-0 border-l-0"],["bottom-1.5 left-1.5","border-t-0 border-r-0"],["bottom-1.5 right-1.5","border-t-0 border-l-0"]].map(([pos,cl],i) => (
-              <div key={i} className={`absolute ${pos} w-4 h-4 border-2 border-white ${cl} pointer-events-none`} />
+            {[
+              ["top-1.5 left-1.5", "border-b-0 border-r-0"],
+              ["top-1.5 right-1.5", "border-b-0 border-l-0"],
+              ["bottom-1.5 left-1.5", "border-t-0 border-r-0"],
+              ["bottom-1.5 right-1.5", "border-t-0 border-l-0"],
+            ].map(([pos, cl], i) => (
+              <div
+                key={i}
+                className={`absolute ${pos} w-4 h-4 border-2 border-white ${cl} pointer-events-none`}
+              />
             ))}
 
             {/* flash overlay */}
-            {flashing && <div className="absolute inset-0 bg-white flash-fire pointer-events-none" />}
+            {flashing && (
+              <div className="absolute inset-0 bg-white flash-fire pointer-events-none" />
+            )}
           </div>
 
           {/* controls */}
@@ -150,7 +163,10 @@ export function CameraScreen({ onSaved, toast }: Props) {
               alt="Preview"
               className="w-full aspect-square object-cover photo-develop"
             />
-            <p className="font-['Caveat'] text-[22px] text-center mt-3 -rotate-1" style={{ color: "var(--ink)" }}>
+            <p
+              className="font-['Caveat'] text-[22px] text-center mt-3 -rotate-1"
+              style={{ color: "var(--ink)" }}
+            >
               revelando...
             </p>
 
