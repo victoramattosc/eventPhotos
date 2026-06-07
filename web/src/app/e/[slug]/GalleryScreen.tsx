@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface PhotoWithUrl {
   id: string;
@@ -187,13 +187,16 @@ type Layout = "scattered" | "wall" | "feed" | "mosaic";
 interface Props {
   refreshKey: number;
   toast: (msg: string) => void;
+  onUploaded: () => void;
 }
 
-export function GalleryScreen({ refreshKey, toast }: Props) {
+export function GalleryScreen({ refreshKey, toast, onUploaded }: Props) {
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [layout, setLayout] = useState<Layout>("scattered");
   const [lightbox, setLightbox] = useState<PhotoWithUrl | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -234,6 +237,30 @@ export function GalleryScreen({ refreshKey, toast }: Props) {
     }
   }
 
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (files.length === 0) return;
+
+    setUploading(true);
+    let okCount = 0;
+    for (const file of files) {
+      const form = new FormData();
+      form.append("photo", file, file.name);
+      const r = await fetch("/api/photos", { method: "POST", body: form });
+      if (r.ok) okCount++;
+    }
+    setUploading(false);
+
+    if (okCount > 0) {
+      toast(okCount === 1 ? "Foto enviada!" : `${okCount} fotos enviadas!`);
+      onUploaded();
+    }
+    if (okCount < files.length) {
+      toast("Erro ao enviar uma ou mais fotos.");
+    }
+  }
+
   const layouts: { key: Layout; label: string }[] = [
     { key: "scattered", label: "Espalhadas" },
     { key: "wall", label: "Mural" },
@@ -263,6 +290,22 @@ export function GalleryScreen({ refreshKey, toast }: Props) {
             </button>
           ))}
           <span className="flex-1" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={handleUpload}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            title="Enviar fotos"
+            className="font-['IBM_Plex_Mono'] text-[10px] tracking-[0.2em] uppercase w-9 h-9 grid place-items-center border border-[var(--ink)] text-[var(--ink)] disabled:opacity-40 hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors"
+          >
+            {uploading ? "···" : "+"}
+          </button>
           <button
             onClick={downloadAll}
             disabled={photos.length === 0}

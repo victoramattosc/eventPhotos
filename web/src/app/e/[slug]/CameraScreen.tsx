@@ -22,6 +22,11 @@ export function CameraScreen({ onSaved, toast }: Props) {
     setFacingMode((m) => (m === "environment" ? "user" : "environment"));
   }
 
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const mirrored = isMobile ? facingMode === "user" : true;
+
   const capture = useCallback(async () => {
     const cam = webcamRef.current;
     if (!cam) return;
@@ -95,7 +100,7 @@ export function CameraScreen({ onSaved, toast }: Props) {
                 audio={false}
                 screenshotFormat="image/jpeg"
                 screenshotQuality={0.9}
-                mirrored={true}
+                mirrored={mirrored}
                 videoConstraints={{ facingMode, aspectRatio: 1 }}
                 onUserMediaError={() => setCamError(true)}
                 className="w-full h-full object-cover"

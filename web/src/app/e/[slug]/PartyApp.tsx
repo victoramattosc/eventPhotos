@@ -58,7 +58,7 @@ export function PartyApp({ event }: Props) {
       {tab === "camera" ? (
         <CameraScreen onSaved={handleSaved} toast={toast} />
       ) : (
-        <GalleryScreen refreshKey={refreshKey} toast={toast} />
+        <GalleryScreen refreshKey={refreshKey} toast={toast} onUploaded={handleSaved} />
       )}
 
       {/* bottom nav */}
